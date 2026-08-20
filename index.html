@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TroyDev — Web Developer / Digital Creative</title>
+<meta name="description" content="TroyDev — web developer and digital creative building intentional, high-craft digital experiences."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700;1,6..96,400;1,6..96,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyAZ4fG0KU4i18wL7FMBUDr-OGaFqlHMth4",
+    authDomain: "my-portfolio-85d41.firebaseapp.com",
+    databaseURL: "https://my-portfolio-85d41-default-rtdb.firebaseio.com",
+    projectId: "my-portfolio-85d41",
+    storageBucket: "my-portfolio-85d41.firebasestorage.app",
+    messagingSenderId: "344191841826",
+    appId: "1:344191841826:web:b25694a90295dc8e58bc7b"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window.loadProjects = async function() {
+    try {
+      const q = query(collection(db, "projects"), orderBy("createdAt", "desc"));
+      const snapshot = await getDocs(q);
+      const projects = [];
+      snapshot.forEach(doc => projects.push({ id: doc.id, ...doc.data() }));
+      renderProjects(projects);
+    } catch (e) {
+      console.error("Error loading projects:", e);
+      // Fallback with sample projects for local development
+      const sampleProjects = [
+        { id: 1, title: "Sample Project 1", description: "A beautiful web application example.", category: "Web Design", tech: ["React", "Tailwind CSS"], liveUrl: "#" },
+        { id: 2, title: "Sample Project 2", description: "Modern digital experience.", category: "Full Stack", tech: ["Next.js", "Node.js"], githubUrl: "#" }
+      ];
+      renderProjects(sampleProjects);
+    }
+  };
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function renderProjects(projects) {
+    const grid = document.getElementById("projects-grid");
+    if (!grid) return;
+    if (projects.length === 0) {
+      grid.innerHTML = `<div class="no-projects"><span>No projects yet — check back soon.</span></div>`;
+      return;
+    }
+    grid.innerHTML = projects.map((p, i) => `
+      <article class="work-spread reveal ${i % 2 === 1 ? 'align-right' : ''}">
+        <div class="work-media">
+          ${p.imageBase64
+            ? `<img src="${p.imageBase64}" alt="${p.title}" loading="lazy"/>`
+            : `<div class="work-media-placeholder"><span>${p.title ? p.title.charAt(0) : '?'}</span></div>`}
+        </div>
+        <div class="work-info">
+          <p class="work-num">Project ${pad(i + 1)}</p>
+          <h3 class="work-title">${p.title || 'Untitled'}</h3>
+          <p class="work-category">${(p.category) || (p.tech && p.tech.length ? p.tech.slice(0,2).join(' / ') : 'Web Project')}</p>
+          <p class="work-desc">${p.description || ''}</p>
+          ${(p.tech && p.tech.length) ? `
+          <div class="work-tech">
+            <span class="work-tech-label">Tech</span>
+            <span class="work-tech-list">${p.tech.join(' / ')}</span>
+          </div>` : ''}
+          <div class="work-links">
+            ${p.liveUrl ? `<a href="${p.liveUrl}" target="_blank" rel="noopener" class="text-link">View Project <span>&rarr;</span></a>` : ''}
+            ${p.githubUrl ? `<a href="${p.githubUrl}" target="_blank" rel="noopener" class="text-link">GitHub <span>&rarr;</span></a>` : ''}
+          </div>
+        </div>
+      </article>
+    `).join('');
+    observeReveal();
+  }
+  window.addEventListener('DOMContentLoaded', () => { window.loadProjects(); });
+</script>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu-scrim" id="mobileScrim"></div>
+<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile">
+  <div class="mobile-menu-head">
+    <span class="mobile-logo">TROYDEV</span>
+    <button class="mobile-close" id="mobileClose" aria-label="Close menu">&times;</button>
+  </div>
+  <a href="#work">Work</a>
+  <a href="#about">About</a>
+  <a href="#services">Services</a>
+  <a href="#contact">Contact</a>
+</nav>
+
+<!-- NAV -->
+<nav class="site-nav" id="siteNav">
+  <div class="nav-inner">
+    <a href="#top" class="nav-logo">TROYDEV</a>
+    <div class="nav-links">
+      <a href="#work">Work</a>
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#contact" class="nav-cta">Let's Work Together <span>&rarr;</span></a>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div class="hero-top reveal-load">
+      <span class="hero-kicker">TroyDev</span>
+      <span class="hero-kicker">Web Developer / Digital Creative</span>
+    </div>
+    <h1 class="hero-headline">
+      <span class="reveal-line"><span>Digital experiences</span></span>
+      <span class="reveal-line"><span class="em">built with intention.</span></span>
+    </h1>
+    <div class="hero-bottom reveal-load delay-3">
+      <p class="hero-intro">TroyDev designs and builds websites, web applications and digital products — combining clean engineering with a designer's eye for detail.</p>
+      <div class="hero-cta">
+        <a href="#work" class="btn btn-line-light">View Work <span>&rarr;</span></a>
+        <a href="#contact" class="btn btn-solid-light">Let's Work Together <span>&rarr;</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll-cue" aria-hidden="true"><span></span></div>
+</section>
+
+<!-- ABOUT -->
+<section class="section about" id="about">
+  <p class="kicker reveal">01 / About</p>
+  <h2 class="about-statement reveal">I BUILD WEBSITES<br>THAT MAKE BRANDS<br>LOOK SERIOUS.</h2>
+
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>Hey, I'm <strong>Troy</strong> — a web developer who turns ideas into clean, considered digital experiences. I care about the details most people skip: spacing, hierarchy, the feel of an interaction.</p>
+      <p>I'm currently sharpening my craft as a <strong>Junior Developer at UPAM Academy</strong>, building and shipping real projects alongside senior developers — and pushing my own work at the intersection of design and engineering outside of it.</p>
+      <p>When I'm not coding, I'm exploring new technologies, studying design systems, and looking for the next idea worth building properly.</p>
+    </div>
+    <div class="about-stats reveal">
+      <div class="stat"><span class="stat-num">5+</span><span class="stat-label">Languages</span></div>
+      <div class="stat"><span class="stat-num">&infin;</span><span class="stat-label">Passion</span></div>
+      <div class="stat"><span class="stat-num">1+</span><span class="stat-label">Years Exp.</span></div>
+      <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Dedication</span></div>
+    </div>
+  </div>
+
+  <!-- EXPERIENCE TIMELINE -->
+  <div class="timeline">
+    <p class="kicker reveal">Experience</p>
+    <div class="timeline-item reveal">
+      <span class="timeline-date">2024 &mdash; Present</span>
+      <div class="timeline-body">
+        <h3>Junior Developer</h3>
+        <p class="timeline-company">UPAM Academy</p>
+        <p class="timeline-desc">Building and maintaining web applications, collaborating with senior developers, learning industry best practices, and contributing to real-world projects that deliver results.</p>
+      </div>
+    </div>
+    <div class="timeline-item reveal">
+      <span class="timeline-date">Ongoing</span>
+      <div class="timeline-body">
+        <h3>Self-Taught Developer</h3>
+        <p class="timeline-company">Independent</p>
+        <p class="timeline-desc">Continuously learning new technologies, building personal projects, and expanding expertise across HTML, CSS, JavaScript, React, Python, and modern web development practices.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECHNOLOGY -->
+<section class="tech-section">
+  <p class="kicker kicker-light reveal">Technology</p>
+  <ul class="tech-list">
+    <li class="reveal"><span>HTML</span><em>95</em></li>
+    <li class="reveal"><span>CSS</span><em>90</em></li>
+    <li class="reveal"><span>JavaScript</span><em>85</em></li>
+    <li class="reveal"><span>React</span><em>80</em></li>
+    <li class="reveal"><span>Python</span><em>75</em></li>
+    <li class="reveal"><span>Firebase</span><em>70</em></li>
+  </ul>
+</section>
+
+<!-- SELECTED WORK -->
+<section class="section work" id="work">
+  <div class="work-head">
+    <p class="kicker reveal">02 / Selected Work</p>
+    <h2 class="section-title reveal">My <em>Work</em></h2>
+  </div>
+  <div id="projects-grid" class="work-list">
+    <div class="no-projects">Loading projects&hellip;</div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section services" id="services">
+  <p class="kicker reveal">03 / Services</p>
+  <h2 class="section-title reveal">What I <em>Do</em></h2>
+
+  <div class="services-list">
+    <div class="service-item reveal">
+      <div class="service-row">
+        <span class="service-num">01</span>
+        <h3>Business Websites</h3>
+        <span class="service-arrow">&rarr;</span>
+      </div>
+      <p class="service-detail">Polished, credible sites for real businesses — built to convert visitors into customers.</p>
+    </div>
+    <div class="service-item reveal">
+      <div class="service-row">
+        <span class="service-num">02</span>
+        <h3>E-Commerce</h3>
+        <span class="service-arrow">&rarr;</span>
+      </div>
+      <p class="service-detail">Online stores with clean product presentation, smooth checkout flows and real usability.</p>
+    </div>
+    <div class="service-item reveal">
+      <div class="service-row">
+        <span class="service-num">03</span>
+        <h3>Landing Pages</h3>
+        <span class="service-arrow">&rarr;</span>
+      </div>
+      <p class="service-detail">Focused, high-conversion pages built around a single goal — launch, campaign, or product.</p>
+    </div>
+    <div class="service-item reveal">
+      <div class="service-row">
+        <span class="service-num">04</span>
+        <h3>Web Applications</h3>
+        <span class="service-arrow">&rarr;</span>
+      </div>
+      <p class="service-detail">Custom tools and dashboards with real functionality — from data to interface.</p>
+    </div>
+    <div class="service-item reveal">
+      <div class="service-row">
+        <span class="service-num">05</span>
+        <h3>Website Redesign</h3>
+        <span class="service-arrow">&rarr;</span>
+      </div>
+      <p class="service-detail">Bringing a dated or underperforming site up to a modern, premium standard — like this one.</p>
+    </div>
+    <div class="service-item reveal">
+      <div class="service-row">
+        <span class="service-num">06</span>
+        <h3>Maintenance</h3>
+        <span class="service-arrow">&rarr;</span>
+      </div>
+      <p class="service-detail">Ongoing updates, fixes and improvements so your site keeps working as hard as you do.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <p class="kicker kicker-light reveal">04 / Contact</p>
+  <h2 class="contact-headline reveal">LET'S BUILD<br>SOMETHING<br>GOOD.</h2>
+  <p class="contact-sub reveal">Have a project in mind?</p>
+  <a href="#contact-links" class="btn btn-solid-light reveal">Contact TroyDev <span>&rarr;</span></a>
+
+  <div class="contact-links" id="contact-links">
+    <a href="https://wa.me/+2340000000000" target="_blank" rel="noopener" class="contact-link reveal">
+      <span class="contact-link-label">WhatsApp</span>
+      <span class="contact-link-value">+234 000 000 0000</span>
+    </a>
+    <a href="https://instagram.com/troydev" target="_blank" rel="noopener" class="contact-link reveal">
+      <span class="contact-link-label">Instagram</span>
+      <span class="contact-link-value">@troydev</span>
+    </a>
+    <a href="https://github.com/troydev" target="_blank" rel="noopener" class="contact-link reveal">
+      <span class="contact-link-label">GitHub</span>
+      <span class="contact-link-value">github.com/troydev</span>
+    </a>
+    <a href="https://linkedin.com/in/troydev" target="_blank" rel="noopener" class="contact-link reveal">
+      <span class="contact-link-label">LinkedIn</span>
+      <span class="contact-link-value">linkedin.com/in/troydev</span>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <span class="footer-logo">TROYDEV</span>
+  <p class="footer-role">Web Developer / Digital Creative</p>
+  <p class="footer-copy">&copy; <span id="year"></span> TROYDEV</p>
+  <a href="admin.html" class="admin-link">&#9881; Admin</a>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
